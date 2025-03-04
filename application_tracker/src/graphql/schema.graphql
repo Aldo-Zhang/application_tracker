@@ -1,0 +1,18 @@
+type Problem @model {
+  id: ID!
+  name: String!
+  difficulty: String!
+  completed: Boolean!
+  url: String
+}
+
+type Query {
+  getProblems: [Problem]
+  getProblem(id: ID!): Problem
+}
+
+type Mutation {
+  createProblem(input: CreateProblemInput!): Problem
+  updateProblem(input: UpdateProblemInput!): Problem
+  deleteProblem(id: ID!): Problem
+} 
