@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useSession } from "next-auth/react"
 import { CheckCircle2, Circle, Trophy } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -28,17 +29,9 @@ type Problem = {
 }
 
 export function LeetcodeTracker() {
+  const { data: session } = useSession()
   const [dailyGoal, setDailyGoal] = useState(3)
-  const [problems, setProblems] = useState<Problem[]>([
-    { id: "1", name: "Two Sum", difficulty: "Easy", completed: true, url: "https://leetcode.com/problems/two-sum/" },
-    {
-      id: "2",
-      name: "Add Two Numbers",
-      difficulty: "Medium",
-      completed: false,
-      url: "https://leetcode.com/problems/add-two-numbers/",
-    },
-  ])
+  const [problems, setProblems] = useState<Problem[]>([])
   const [isAddProblemOpen, setIsAddProblemOpen] = useState(false)
   const [newProblem, setNewProblem] = useState<Partial<Problem>>({
     name: "",
@@ -46,47 +39,147 @@ export function LeetcodeTracker() {
     completed: false,
     url: "",
   })
+  const [isLoading, setIsLoading] = useState(true)
 
   const completedCount = problems.filter((p) => p.completed).length
   const progress = Math.min(100, (completedCount / dailyGoal) * 100)
   const goalReached = completedCount >= dailyGoal
 
-  const handleAddProblem = () => {
-    if (!newProblem.name) return
-
-    const problem: Problem = {
-      id: Date.now().toString(),
-      name: newProblem.name,
-      difficulty: newProblem.difficulty as "Easy" | "Medium" | "Hard",
-      completed: false,
-      url: newProblem.url,
+  // 获取用户问题列表
+  useEffect(() => {
+    async function fetchProblems() {
+      if (session?.user) {
+        try {
+          const response = await fetch("/api/problems")
+          if (response.ok) {
+            const data = await response.json()
+            setProblems(data)
+          }
+        } catch (error) {
+          console.error("Error fetching problems:", error)
+        } finally {
+          setIsLoading(false)
+        }
+      } else {
+        // 未登录用户使用示例数据
+        setProblems([
+          { id: "1", name: "Two Sum", difficulty: "Easy", completed: true, url: "https://leetcode.com/problems/two-sum/" },
+          {
+            id: "2",
+            name: "Add Two Numbers",
+            difficulty: "Medium",
+            completed: false,
+            url: "https://leetcode.com/problems/add-two-numbers/",
+          },
+        ])
+        setIsLoading(false)
+      }
     }
 
-    setProblems([...problems, problem])
-    setNewProblem({
-      name: "",
-      difficulty: "Medium",
-      completed: false,
-      url: "",
-    })
-    setIsAddProblemOpen(false)
+    fetchProblems()
+  }, [session])
+
+  // 添加问题
+  const handleAddProblem = async () => {
+    if (!newProblem.name) return
+    if (!session?.user) {
+      alert("请先登录")
+      return
+    }
+
+    try {
+      const response = await fetch("/api/problems", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: newProblem.name,
+          difficulty: newProblem.difficulty,
+          url: newProblem.url,
+        }),
+      })
+
+      if (response.ok) {
+        const createdProblem = await response.json()
+        setProblems([...problems, createdProblem])
+        setNewProblem({
+          name: "",
+          difficulty: "Medium",
+          completed: false,
+          url: "",
+        })
+        setIsAddProblemOpen(false)
+      }
+    } catch (error) {
+      console.error("Error adding problem:", error)
+    }
   }
 
-  const toggleProblemStatus = (id: string) => {
-    setProblems(
-      problems.map((problem) => (problem.id === id ? { ...problem, completed: !problem.completed } : problem)),
-    )
+  // 切换问题状态
+  const toggleProblemStatus = async (id: string) => {
+    if (!session?.user) return
+    
+    const problem = problems.find(p => p.id === id)
+    if (!problem) return
+
+    try {
+      const response = await fetch(`/api/problems/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          completed: !problem.completed,
+        }),
+      })
+
+      if (response.ok) {
+        setProblems(
+          problems.map((p) => (p.id === id ? { ...p, completed: !p.completed } : p))
+        )
+      }
+    } catch (error) {
+      console.error("Error toggling problem status:", error)
+    }
   }
 
+  // 更新每日目标
   const updateDailyGoal = (value: number) => {
     if (value > 0) {
       setDailyGoal(value)
     }
   }
 
-  // Add a delete function for LeetCode problems
-  const deleteProblem = (id: string) => {
-    setProblems(problems.filter((problem) => problem.id !== id))
+  // 删除问题
+  const deleteProblem = async (id: string) => {
+    if (!session?.user) return
+
+    try {
+      const response = await fetch(`/api/problems/${id}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        setProblems(problems.filter((problem) => problem.id !== id))
+      }
+    } catch (error) {
+      console.error("Error deleting problem:", error)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <Card className="col-span-1">
+        <CardHeader>
+          <CardTitle>LeetCode 跟踪器</CardTitle>
+          <CardDescription>加载中...</CardDescription>
+        </CardHeader>
+        <CardContent className="flex items-center justify-center py-10">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+        </CardContent>
+      </Card>
+    )
   }
 
   return (
