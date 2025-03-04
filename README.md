@@ -1,6 +1,6 @@
 # JobTrack - Application Tracking Tool
 
-![JobTrack](https://via.placeholder.com/150x50?text=JobTrack)
+Website link : job-track.site
 
 A comprehensive job application tracking tool to help you manage your internship and full-time job application process.
 
@@ -15,7 +15,7 @@ A comprehensive job application tracking tool to help you manage your internship
 
 ## 📸 Screenshots
 
-![App Screenshot](https://via.placeholder.com/800x400?text=JobTrack+Screenshot)
+![App Screenshot](/src/images/screen_shot.jpg)
 
 ## 🚀 Quick Start
 
@@ -28,8 +28,8 @@ A comprehensive job application tracking tool to help you manage your internship
 
 1. Clone this repository
 ```bash
-git clone https://github.com/your-username/jobtrack.git
-cd jobtrack
+git clone https://github.com/Aldo-Zhang/application_tracker.git
+cd application_tracker
 ```
 
 2. Install dependencies
@@ -101,11 +101,7 @@ Note that clearing your browser cache will delete all data. It's recommended to 
 
 ## 🚢 Deployment
 
-The app can be easily deployed through [Vercel](https://vercel.com):
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fjobtrack)
-
-It can also be deployed via AWS Amplify with the included configuration file.
+This website is deployed via AWS Amplify with the included configuration file.
 
 ## 🤝 Contributing
 
@@ -123,9 +119,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Contact
 
-Your Name - [@your-twitter](https://twitter.com/your-twitter)
-
-Project Link: [https://github.com/your-username/jobtrack](https://github.com/your-username/jobtrack)
+Aldo-Zhang : aldozhang1@gmail.com
 
 ## Acknowledgements
 
