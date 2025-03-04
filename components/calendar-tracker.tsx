@@ -335,10 +335,10 @@ export function CalendarTracker() {
                       selected={selectedDay}
                       onSelect={setSelectedDay}
                       components={{
-                        DayContent: ({ date, ...props }) => (
+                        Day: ({ day, ...props }) => (
                           <div className="relative" {...props}>
-                            {date.getDate()}
-                            {renderDayContent(date)}
+                            {day.toString().split('T')[0]}
+                            {renderDayContent(new Date(day.toString()))}
                           </div>
                         ),
                       }}
