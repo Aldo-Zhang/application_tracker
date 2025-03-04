@@ -1,9 +1,49 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobTrack - Application Tracking Tool
 
-## Getting Started
+![JobTrack](https://via.placeholder.com/150x50?text=JobTrack)
 
-First, run the development server:
+A comprehensive job application tracking tool to help you manage your internship and full-time job application process.
 
+## 🌟 Key Features
+
+- **Company Application Tracker**: Record and manage all positions you've applied for
+- **Calendar Tracker**: Visually track your interviews and deadlines
+- **LeetCode Tracker**: Monitor your programming practice progress
+- **Data Import/Export**: Seamlessly transfer your data between devices
+- **Dark Mode**: Support for light/dark theme switching
+- **Local Storage**: All data saved locally to protect your privacy
+
+## 📸 Screenshots
+
+![App Screenshot](https://via.placeholder.com/800x400?text=JobTrack+Screenshot)
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18.0 or higher
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone this repository
+```bash
+git clone https://github.com/your-username/jobtrack.git
+cd jobtrack
+```
+
+2. Install dependencies
+```bash
+npm install
+# or
+yarn
+# or
+pnpm install
+# or
+bun install
+```
+
+3. Start the development server
 ```bash
 npm run dev
 # or
@@ -14,23 +54,85 @@ pnpm dev
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💻 Usage Guide
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Company Application Tracker
+- Click the "Add Application" button to create a new job application record
+- Fill in company name, position, and application date
+- Update application status (Applied, Online Assessment, Phone Screen, Interview, Final Round, Offer, Rejected, Withdrawn)
+- Add notes and other relevant information
 
-## Learn More
+### Calendar Tracker
+- View timeline of applications and interviews
+- Add important events and reminders
+- Create and manage action items for each event
 
-To learn more about Next.js, take a look at the following resources:
+### LeetCode Tracker
+- Set daily problem-solving goals
+- Record completed problems
+- View problems categorized by difficulty
+- Link to original problem pages
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Data Import/Export
+- Export your data for backup or transfer
+- Import previously exported data
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🔧 Tech Stack
 
-## Deploy on Vercel
+- [Next.js](https://nextjs.org) - React framework
+- [TypeScript](https://www.typescriptlang.org) - Static type checking
+- [Tailwind CSS](https://tailwindcss.com) - Utility-first CSS framework
+- [shadcn/ui](https://ui.shadcn.com/) - Reusable UI components
+- [Radix UI](https://www.radix-ui.com/) - Accessible UI primitives
+- [date-fns](https://date-fns.org/) - Date utility library
+- [React Day Picker](https://react-day-picker.js.org/) - Date picker component
+- [AWS Amplify](https://aws.amazon.com/amplify/) - Deployment and hosting
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 📱 Local Storage
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+JobTrack saves all your data in your browser's local storage, which means:
+- Data stays on your device
+- No external servers storing your information
+- Data persists after page refreshes
+
+Note that clearing your browser cache will delete all data. It's recommended to regularly backup your information using the data export feature.
+
+## 🚢 Deployment
+
+The app can be easily deployed through [Vercel](https://vercel.com):
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fyour-username%2Fjobtrack)
+
+It can also be deployed via AWS Amplify with the included configuration file.
+
+## 🤝 Contributing
+
+Contributions are welcome! If you have suggestions for improvements or have found a bug, please:
+
+1. Fork this repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 📞 Contact
+
+Your Name - [@your-twitter](https://twitter.com/your-twitter)
+
+Project Link: [https://github.com/your-username/jobtrack](https://github.com/your-username/jobtrack)
+
+## Acknowledgements
+
+- Thanks to all contributors of the open-source software and libraries used
+- UI design inspiration from modern design trends
+- All users who provided feedback for the project
+
+---
+
+💼 **JobTrack** - Simplify your job search journey
