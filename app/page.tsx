@@ -24,7 +24,13 @@ export default function Home() {
             </div>
           </div>
         </header>
-        <main className="container py-6 flex-grow">
+        <main 
+          className="container py-6 flex-grow"
+          style={{ 
+            containIntrinsicSize: '0 500px',
+            contentVisibility: 'auto',
+          }}
+        >
           <section className="mb-8 space-y-4">
             <div className="space-y-2">
               <h2 className="text-3xl font-bold tracking-tight">Application Tracker</h2>

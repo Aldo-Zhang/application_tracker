@@ -75,3 +75,12 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* 针对iOS设备优化滚动 */
+}
+

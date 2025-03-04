@@ -19,6 +19,7 @@
     "@radix-ui/react-slot": "^1.1.2",
     "@radix-ui/react-toast": "^1.2.6",
     "@shadcn/ui": "^0.0.4",
+    "@tanstack/react-virtual": "^3.13.2",
     "aws-amplify": "^6.13.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -30,7 +31,8 @@
     "react-day-picker": "^9.5.1",
     "react-dom": "^18",
     "tailwind-merge": "^3.0.2",
-    "tailwindcss-animate": "^1.0.7"
+    "tailwindcss-animate": "^1.0.7",
+    "use-debounce": "^10.0.4"
   },
   "devDependencies": {
     "@types/node": "^20",

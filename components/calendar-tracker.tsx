@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns"
 import { CalendarIcon, ChevronLeft, ChevronRight, Edit, Trash2 } from "lucide-react"
 import { DayPicker } from "react-day-picker"
+import { useDebounce } from "use-debounce"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -83,6 +84,8 @@ export function CalendarTracker() {
   const [newActionItem, setNewActionItem] = useState("")
   const [isFullCalendarOpen, setIsFullCalendarOpen] = useState(false)
   const [calendarMonth, setCalendarMonth] = useState(new Date())
+  const [searchTerm, setSearchTerm] = useState("")
+  const [debouncedSearchTerm] = useDebounce(searchTerm, 300)
 
   // 客户端加载后获取本地存储的数据
   useEffect(() => {
@@ -357,6 +360,11 @@ export function CalendarTracker() {
       </div>
     )
   }
+
+  // 当 debouncedSearchTerm 变化时执行搜索
+  useEffect(() => {
+    // 执行搜索逻辑
+  }, [debouncedSearchTerm])
 
   return (
     <Card className="col-span-1">

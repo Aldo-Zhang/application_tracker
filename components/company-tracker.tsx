@@ -1,8 +1,9 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { format } from "date-fns"
 import { Plus, Search, Building, CalendarIcon, Briefcase } from "lucide-react"
+import { useVirtualizer } from '@tanstack/react-virtual'
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -158,6 +159,20 @@ export function CompanyTracker() {
   const interviewCount = applications.filter(app => app.status === "Interviewing").length
   const offerCount = applications.filter(app => app.status === "Offer Received" || app.status === "Accepted").length
 
+  // Filter companies based on search term
+  const filteredCompanies = Object.entries(groupedByCompany)
+    .filter(([company]) => company.toLowerCase().includes(searchTerm.toLowerCase()))
+    .map(([company, apps]) => ({ company, apps }))
+
+  // Add virtual list logic
+  const parentRef = useRef<HTMLDivElement>(null)
+  const rowVirtualizer = useVirtualizer({
+    count: filteredCompanies.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 200, // Estimate company group height
+    overscan: 5 // Pre-render extra items
+  })
+
   return (
     <Card>
       <CardHeader className="pb-3">
@@ -198,7 +213,7 @@ export function CompanyTracker() {
           </Button>
         </div>
 
-        {Object.keys(groupedByCompany).length === 0 ? (
+        {filteredCompanies.length === 0 ? (
           <div className="rounded-lg border border-dashed p-6 text-center">
             <Building className="mx-auto h-8 w-8 text-muted-foreground" />
             <p className="mt-2 text-sm text-muted-foreground">
@@ -206,74 +221,95 @@ export function CompanyTracker() {
             </p>
           </div>
         ) : (
-          <div className="space-y-6">
-            {Object.entries(groupedByCompany).map(([company, apps]) => (
-              <div key={company} className="rounded-lg border p-4">
-                <div className="mb-2 flex items-center">
-                  <Building className="mr-2 h-5 w-5" />
-                  <h3 className="text-lg font-medium">{company}</h3>
-                  <span className="ml-2 text-sm text-muted-foreground">
-                    ({apps.length} {apps.length === 1 ? 'position' : 'positions'})
-                  </span>
-                </div>
-                <div className="space-y-3">
-                  {apps.map((app) => (
-                    <div key={app.id} className="flex flex-col space-y-2 rounded-md border p-3">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center">
-                          <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{app.position}</span>
-                        </div>
-                        <Badge className={getStatusColor(app.status)}>
-                          {app.status}
-                        </Badge>
-                      </div>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                        <div className="flex items-center">
-                          <CalendarIcon className="mr-1 h-3 w-3" />
-                          Applied on {format(app.dateApplied, "yyyy-MM-dd")}
-                        </div>
-                        {app.notes && (
-                          <div className="flex-1 truncate">
-                            Notes: {app.notes}
+          <div 
+            ref={parentRef} 
+            className="max-h-[600px] overflow-auto"
+            style={{
+              WebkitOverflowScrolling: 'touch' // iOS smooth scrolling
+            }}
+          >
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: '100%',
+                position: 'relative'
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map(virtualRow => (
+                <div
+                  key={virtualRow.index}
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${virtualRow.size}px`,
+                    transform: `translateY(${virtualRow.start}px)`
+                  }}
+                >
+                  <div className="space-y-4 mb-6">
+                    <h3 className="text-lg font-semibold flex items-center">
+                      <Building className="mr-2 h-4 w-4" />
+                      {filteredCompanies[virtualRow.index].company}
+                    </h3>
+                    {filteredCompanies[virtualRow.index].apps.map((app) => (
+                      <div key={app.id} className="flex flex-col space-y-2 rounded-md border p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center">
+                            <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
+                            <span className="font-medium">{app.position}</span>
                           </div>
-                        )}
+                          <Badge className={getStatusColor(app.status)}>
+                            {app.status}
+                          </Badge>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+                          <div className="flex items-center">
+                            <CalendarIcon className="mr-1 h-3 w-3" />
+                            Applied on {format(app.dateApplied, "yyyy-MM-dd")}
+                          </div>
+                          {app.notes && (
+                            <div className="flex-1 truncate">
+                              Notes: {app.notes}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-end gap-2 pt-1">
+                          <Select
+                            value={app.status}
+                            onValueChange={(value) => 
+                              updateApplicationStatus(
+                                app.id, 
+                                value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted"
+                              )
+                            }
+                          >
+                            <SelectTrigger className="h-8 w-[140px]">
+                              <SelectValue placeholder="Update status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Applied">Applied</SelectItem>
+                              <SelectItem value="Interviewing">Interviewing</SelectItem>
+                              <SelectItem value="Rejected">Rejected</SelectItem>
+                              <SelectItem value="Offer Received">Offer Received</SelectItem>
+                              <SelectItem value="Accepted">Accepted</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            className="h-8 text-destructive"
+                            onClick={() => deleteApplication(app.id)}
+                          >
+                            Delete
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-end gap-2 pt-1">
-                        <Select
-                          value={app.status}
-                          onValueChange={(value) => 
-                            updateApplicationStatus(
-                              app.id, 
-                              value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted"
-                            )
-                          }
-                        >
-                          <SelectTrigger className="h-8 w-[140px]">
-                            <SelectValue placeholder="Update status" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Applied">Applied</SelectItem>
-                            <SelectItem value="Interviewing">Interviewing</SelectItem>
-                            <SelectItem value="Rejected">Rejected</SelectItem>
-                            <SelectItem value="Offer Received">Offer Received</SelectItem>
-                            <SelectItem value="Accepted">Accepted</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          className="h-8 text-destructive"
-                          onClick={() => deleteApplication(app.id)}
-                        >
-                          Delete
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         )}
       </CardContent>
