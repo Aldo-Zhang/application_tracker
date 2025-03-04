@@ -160,25 +160,27 @@ export function LeetcodeTracker() {
                   Add Problem
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent className="sm:max-w-[425px] max-w-[95vw] p-4 sm:p-6">
                 <DialogHeader>
-                  <DialogTitle>Add LeetCode Problem</DialogTitle>
-                  <DialogDescription>Add a new problem to your daily tracking list</DialogDescription>
+                  <DialogTitle>Add Problem</DialogTitle>
+                  <DialogDescription>
+                    Add a problem you're working on
+                  </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="problem-name" className="text-right">
-                      Problem
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2">
+                    <Label htmlFor="name" className="sm:text-right">
+                      Problem Name
                     </Label>
                     <Input
-                      id="problem-name"
+                      id="name"
                       value={newProblem.name}
                       onChange={(e) => setNewProblem({ ...newProblem, name: e.target.value })}
-                      className="col-span-3"
+                      className="sm:col-span-3"
                     />
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="difficulty" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2">
+                    <Label htmlFor="difficulty" className="sm:text-right">
                       Difficulty
                     </Label>
                     <Select
@@ -187,7 +189,7 @@ export function LeetcodeTracker() {
                         setNewProblem({ ...newProblem, difficulty: value as "Easy" | "Medium" | "Hard" })
                       }
                     >
-                      <SelectTrigger className="col-span-3">
+                      <SelectTrigger className="sm:col-span-3">
                         <SelectValue placeholder="Select difficulty" />
                       </SelectTrigger>
                       <SelectContent>
@@ -197,21 +199,24 @@ export function LeetcodeTracker() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="problem-url" className="text-right">
+                  <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2">
+                    <Label htmlFor="url" className="sm:text-right">
                       URL
                     </Label>
                     <Input
-                      id="problem-url"
+                      id="url"
                       value={newProblem.url}
                       onChange={(e) => setNewProblem({ ...newProblem, url: e.target.value })}
-                      className="col-span-3"
+                      className="sm:col-span-3"
                       placeholder="https://leetcode.com/problems/..."
                     />
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button type="submit" onClick={handleAddProblem}>
+                <DialogFooter className="flex-col sm:flex-row gap-2">
+                  <Button variant="outline" onClick={() => setIsAddProblemOpen(false)} className="w-full sm:w-auto order-2 sm:order-1">
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddProblem} className="w-full sm:w-auto order-1 sm:order-2">
                     Add Problem
                   </Button>
                 </DialogFooter>

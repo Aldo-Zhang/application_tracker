@@ -123,9 +123,14 @@ export function DataTransfer() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Export/Import Data</Button>
+        <Button variant="outline" size="sm" className="hidden sm:flex">Export/Import Data</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogTrigger asChild>
+        <Button variant="outline" size="icon" className="sm:hidden">
+          <Download className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px] max-w-[95vw] p-4 sm:p-6">
         <DialogHeader>
           <DialogTitle>Data Transfer</DialogTitle>
           <DialogDescription>
@@ -142,16 +147,16 @@ export function DataTransfer() {
             </AlertDescription>
           </Alert>
           
-          <div className="flex justify-between gap-4">
+          <div className="flex flex-col sm:flex-row justify-between gap-4">
             <Button 
               onClick={exportData} 
-              className="flex-1"
+              className="w-full sm:flex-1"
             >
               <Download className="mr-2 h-4 w-4" />
               Export Data
             </Button>
             
-            <div className="flex-1">
+            <div className="w-full sm:flex-1">
               <label htmlFor="import-file">
                 <Button asChild className="w-full">
                   <div>
@@ -172,7 +177,7 @@ export function DataTransfer() {
         </div>
         
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsOpen(false)}>
+          <Button variant="outline" onClick={() => setIsOpen(false)} className="w-full sm:w-auto">
             Cancel
           </Button>
         </DialogFooter>

@@ -376,20 +376,18 @@ export function CalendarTracker() {
                       {selectedDay ? format(selectedDay, "PPP") : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0">
+                  <PopoverContent className="w-auto p-0" align="start">
                     <DayPicker
                       mode="single"
                       selected={selectedDay}
                       onSelect={setSelectedDay}
-                      components={{
-                        Day: ({ day, ...props }) => (
-                          <div className="relative" {...props}>
-                            {day.toString().split('T')[0]}
-                            {renderDayContent(new Date(day.toString()))}
-                          </div>
-                        ),
+                      className="border-none p-3"
+                      styles={{
+                        caption: { margin: '0 auto' },
+                        table: { width: '100%', maxWidth: '100%' },
+                        cell: { padding: '4px' },
+                        button: { width: '36px', height: '36px' }
                       }}
-                      className="p-3"
                     />
                   </PopoverContent>
                 </Popover>
@@ -397,7 +395,7 @@ export function CalendarTracker() {
                   <DialogTrigger asChild>
                     <Button>Add Event</Button>
                   </DialogTrigger>
-                  <DialogContent className="sm:max-w-[500px]">
+                  <DialogContent className="sm:max-w-[500px] max-w-[95vw] p-4 sm:p-6">
                     <DialogHeader>
                       <DialogTitle>Add Job Application Event</DialogTitle>
                       <DialogDescription>
@@ -405,37 +403,37 @@ export function CalendarTracker() {
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="company" className="text-right">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="company" className="sm:text-right">
                           Company
                         </Label>
                         <Input
                           id="company"
                           value={newEvent.company}
                           onChange={(e) => setNewEvent({ ...newEvent, company: e.target.value })}
-                          className="col-span-3"
+                          className="sm:col-span-3"
                         />
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="position" className="text-right">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="position" className="sm:text-right">
                           Position
                         </Label>
                         <Input
                           id="position"
                           value={newEvent.position}
                           onChange={(e) => setNewEvent({ ...newEvent, position: e.target.value })}
-                          className="col-span-3"
+                          className="sm:col-span-3"
                         />
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="step" className="text-right">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="step" className="sm:text-right">
                           Process Step
                         </Label>
                         <Select
                           value={newEvent.step}
                           onValueChange={(value) => setNewEvent({ ...newEvent, step: value })}
                         >
-                          <SelectTrigger className="col-span-3">
+                          <SelectTrigger className="sm:col-span-3">
                             <SelectValue placeholder="Select a step" />
                           </SelectTrigger>
                           <SelectContent>
@@ -447,32 +445,32 @@ export function CalendarTracker() {
                           </SelectContent>
                         </Select>
                       </div>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="link" className="text-right">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="link" className="sm:text-right">
                           Link
                         </Label>
                         <Input
                           id="link"
                           value={newEvent.link}
                           onChange={(e) => setNewEvent({ ...newEvent, link: e.target.value })}
-                          className="col-span-3"
+                          className="sm:col-span-3"
                           placeholder="https://"
                         />
                       </div>
-                      <div className="grid grid-cols-4 items-start gap-4">
-                        <Label htmlFor="notes" className="text-right pt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label htmlFor="notes" className="sm:text-right pt-2">
                           Notes
                         </Label>
                         <Textarea
                           id="notes"
                           value={newEvent.notes}
                           onChange={(e) => setNewEvent({ ...newEvent, notes: e.target.value })}
-                          className="col-span-3"
+                          className="sm:col-span-3"
                         />
                       </div>
-                      <div className="grid grid-cols-4 items-start gap-4">
-                        <Label className="text-right pt-2">Action Items</Label>
-                        <div className="col-span-3 space-y-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-4 items-start sm:items-center gap-2 sm:gap-4">
+                        <Label className="sm:text-right pt-2">Action Items</Label>
+                        <div className="sm:col-span-3 space-y-2">
                           <div className="flex gap-2">
                             <Input
                               value={newActionItem}

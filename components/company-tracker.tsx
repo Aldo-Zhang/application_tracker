@@ -160,149 +160,42 @@ export function CompanyTracker() {
 
   return (
     <Card>
-      <CardHeader>
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <CardHeader className="pb-3">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
           <div>
-            <CardTitle className="text-xl md:text-2xl">Company Applications</CardTitle>
-            <CardDescription>
-              Track and manage your job applications
-            </CardDescription>
+            <CardTitle>Company Applications</CardTitle>
+            <CardDescription>Keep track of your job applications</CardDescription>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
-            <div className="flex items-center gap-1.5 bg-background rounded-lg border px-3 py-1.5">
-              <span className="text-sm font-medium">{totalApplications}</span>
-              <span className="text-xs text-muted-foreground">Applications</span>
+          <div className="flex gap-2 mt-2 sm:mt-0">
+            <div className="text-sm font-medium flex flex-wrap gap-2">
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-500">
+                Total: {totalApplications}
+              </Badge>
+              <Badge variant="outline" className="bg-amber-500/10 text-amber-500">
+                Interviewing: {interviewCount}
+              </Badge>
+              <Badge variant="outline" className="bg-green-500/10 text-green-500">
+                Offers: {offerCount}
+              </Badge>
             </div>
-            <div className="flex items-center gap-1.5 bg-background rounded-lg border px-3 py-1.5">
-              <span className="text-sm font-medium">{interviewCount}</span>
-              <span className="text-xs text-muted-foreground">Interviews</span>
-            </div>
-            <div className="flex items-center gap-1.5 bg-background rounded-lg border px-3 py-1.5">
-              <span className="text-sm font-medium">{offerCount}</span>
-              <span className="text-xs text-muted-foreground">Offers</span>
-            </div>
-            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-              <DialogTrigger asChild>
-                <Button size="sm" className="gap-1">
-                  <Plus className="h-4 w-4" />
-                  Add Application
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-[500px]">
-                <DialogHeader>
-                  <DialogTitle>Add New Job Application</DialogTitle>
-                  <DialogDescription>
-                    Record details about a job you&apos;ve applied for
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="companyName" className="text-right">
-                      Company
-                    </Label>
-                    <Input
-                      id="companyName"
-                      value={newApplication.companyName}
-                      onChange={(e) => setNewApplication({ ...newApplication, companyName: e.target.value })}
-                      className="col-span-3"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="position" className="text-right">
-                      Position
-                    </Label>
-                    <Input
-                      id="position"
-                      value={newApplication.position}
-                      onChange={(e) => setNewApplication({ ...newApplication, position: e.target.value })}
-                      className="col-span-3"
-                    />
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">
-                      Date Applied
-                    </Label>
-                    <div className="col-span-3">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            className="w-full justify-start text-left font-normal"
-                          >
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {newApplication.dateApplied ? (
-                              format(newApplication.dateApplied, "PPP")
-                            ) : (
-                              <span>Pick a date</span>
-                            )}
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0">
-                          <DayPicker
-                            mode="single"
-                            selected={newApplication.dateApplied}
-                            onSelect={(date) => setNewApplication({ ...newApplication, dateApplied: date || new Date() })}
-                          />
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="status" className="text-right">
-                      Status
-                    </Label>
-                    <Select
-                      value={newApplication.status}
-                      onValueChange={(value) => 
-                        setNewApplication({ 
-                          ...newApplication, 
-                          status: value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" 
-                        })
-                      }
-                    >
-                      <SelectTrigger className="col-span-3">
-                        <SelectValue placeholder="Select status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Applied">Applied</SelectItem>
-                        <SelectItem value="Interviewing">Interviewing</SelectItem>
-                        <SelectItem value="Rejected">Rejected</SelectItem>
-                        <SelectItem value="Offer Received">Offer Received</SelectItem>
-                        <SelectItem value="Accepted">Accepted</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid grid-cols-4 items-start gap-4">
-                    <Label htmlFor="notes" className="text-right pt-2">
-                      Notes
-                    </Label>
-                    <textarea
-                      id="notes"
-                      value={newApplication.notes}
-                      onChange={(e) => setNewApplication({ ...newApplication, notes: e.target.value })}
-                      className="col-span-3 min-h-[80px] rounded-md border border-input bg-background px-3 py-2"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button onClick={handleAddApplication}>Add</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
           </div>
         </div>
       </CardHeader>
-      <CardContent>
-        <div className="mb-4">
-          <div className="relative">
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          <div className="relative w-full sm:w-auto flex-1">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search companies or positions..."
-              className="pl-8"
+              placeholder="Search company or position..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-8 w-full"
             />
           </div>
+          <Button onClick={() => setIsAddDialogOpen(true)} className="w-full sm:w-auto">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Application
+          </Button>
         </div>
 
         {Object.keys(groupedByCompany).length === 0 ? (
@@ -384,6 +277,114 @@ export function CompanyTracker() {
           </div>
         )}
       </CardContent>
+      <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" className="gap-1">
+            <Plus className="h-4 w-4" />
+            Add Application
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add New Job Application</DialogTitle>
+            <DialogDescription>
+              Record details about a job you&apos;ve applied for
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="companyName" className="text-right">
+                Company
+              </Label>
+              <Input
+                id="companyName"
+                value={newApplication.companyName}
+                onChange={(e) => setNewApplication({ ...newApplication, companyName: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="position" className="text-right">
+                Position
+              </Label>
+              <Input
+                id="position"
+                value={newApplication.position}
+                onChange={(e) => setNewApplication({ ...newApplication, position: e.target.value })}
+                className="col-span-3"
+              />
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">
+                Date Applied
+              </Label>
+              <div className="col-span-3">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {newApplication.dateApplied ? (
+                        format(newApplication.dateApplied, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <DayPicker
+                      mode="single"
+                      selected={newApplication.dateApplied}
+                      onSelect={(date) => setNewApplication({ ...newApplication, dateApplied: date || new Date() })}
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label htmlFor="status" className="text-right">
+                Status
+              </Label>
+              <Select
+                value={newApplication.status}
+                onValueChange={(value) => 
+                  setNewApplication({ 
+                    ...newApplication, 
+                    status: value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" 
+                  })
+                }
+              >
+                <SelectTrigger className="col-span-3">
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Applied">Applied</SelectItem>
+                  <SelectItem value="Interviewing">Interviewing</SelectItem>
+                  <SelectItem value="Rejected">Rejected</SelectItem>
+                  <SelectItem value="Offer Received">Offer Received</SelectItem>
+                  <SelectItem value="Accepted">Accepted</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid grid-cols-4 items-start gap-4">
+              <Label htmlFor="notes" className="text-right pt-2">
+                Notes
+              </Label>
+              <textarea
+                id="notes"
+                value={newApplication.notes}
+                onChange={(e) => setNewApplication({ ...newApplication, notes: e.target.value })}
+                className="col-span-3 min-h-[80px] rounded-md border border-input bg-background px-3 py-2"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button onClick={handleAddApplication}>Add</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 } 

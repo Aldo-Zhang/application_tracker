@@ -1,4 +1,5 @@
-import { ToastActionElement, ToastProps } from "@/components/ui/toast"
+import { ToastActionElement, ToastProps, ToastProvider as Provider, ToastViewport } from "@/components/ui/toast"
+import React from "react"
 
 const TOAST_LIMIT = 1
 const TOAST_REMOVE_DELAY = 1000000
@@ -10,6 +11,7 @@ type ToasterToast = ToastProps & {
   action?: ToastActionElement
 }
 
+//
 const actionTypes = {
   ADD_TOAST: "ADD_TOAST",
   UPDATE_TOAST: "UPDATE_TOAST",
@@ -168,4 +170,14 @@ function useToast() {
   }
 }
 
-export { useToast, toast } 
+// 添加 ToastProvider 组件
+function ToastProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <Provider>
+      {children}
+      <ToastViewport />
+    </Provider>
+  )
+}
+
+export { useToast, toast, ToastProvider } 
