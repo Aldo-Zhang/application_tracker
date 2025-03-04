@@ -126,7 +126,7 @@ export function LeetcodeTracker() {
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="font-medium">Today's Problems</h3>
+            <h3 className="font-medium">Today&apos;s Problems</h3>
             <Dialog open={isAddProblemOpen} onOpenChange={setIsAddProblemOpen}>
               <DialogTrigger asChild>
                 <Button variant="outline" size="sm">
@@ -195,7 +195,7 @@ export function LeetcodeTracker() {
           {problems.length === 0 ? (
             <div className="rounded-lg border border-dashed p-6 text-center">
               <p className="text-sm text-muted-foreground">
-                No problems added yet. Click "Add Problem" to get started.
+                No problems added yet. Click &quot;Add Problem&quot; to get started.
               </p>
             </div>
           ) : (
@@ -275,7 +275,7 @@ export function LeetcodeTracker() {
           <div className="flex w-full items-center justify-center space-x-2 text-center">
             <Trophy className="h-5 w-5 text-yellow-500" />
             <span className="font-medium text-green-600 dark:text-green-400">
-              Congratulations! You've reached your daily goal!
+              Congratulations! You&apos;ve reached your daily goal!
             </span>
           </div>
         ) : (

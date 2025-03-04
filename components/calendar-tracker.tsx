@@ -67,7 +67,6 @@ export function CalendarTracker() {
   ])
   const [isAddEventOpen, setIsAddEventOpen] = useState(false)
   const [isEditEventOpen, setIsEditEventOpen] = useState(false)
-  const [isViewEventOpen, setIsViewEventOpen] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<JobEvent | null>(null)
   const [newEvent, setNewEvent] = useState<Partial<JobEvent>>({
     date: new Date(),
@@ -146,10 +145,6 @@ export function CalendarTracker() {
     }
   }
 
-  const handleViewEvent = (event: JobEvent) => {
-    setCurrentEvent(event)
-    setIsViewEventOpen(true)
-  }
 
   const handleToggleActionItem = (eventId: string, taskId: string) => {
     setEvents(
@@ -282,7 +277,7 @@ export function CalendarTracker() {
               {day}
             </div>
           ))}
-          {days.map((day, index) => {
+          {days.map((day) => {
             const dayEvents = events.filter((event) => event.date.toDateString() === day.toDateString())
             return (
               <div
@@ -513,7 +508,7 @@ export function CalendarTracker() {
                 <div className="mt-4 rounded-lg border border-dashed p-8 text-center">
                   <h3 className="font-medium text-muted-foreground">No events for this day</h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    Click "Add Event" to create a new job application event.
+                    Click &quot;Add Event&quot; to create a new job application event.
                   </p>
                 </div>
               ) : (
