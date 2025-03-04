@@ -1,3 +1,5 @@
+"use client"
+
 import { CalendarTracker } from "@/components/calendar-tracker"
 import { LeetcodeTracker } from "@/components/leetcode-tracker"
 import { ModeToggle } from "@/components/mode-toggle"
@@ -29,4 +31,3 @@ export default function Home() {
     </div>
   )
 }
-
