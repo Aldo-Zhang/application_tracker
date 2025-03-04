@@ -1,6 +1,6 @@
 # JobTrack - Application Tracking Tool
 
-Website link : job-track.site
+Website link : [job-track.site](job-track.site)
 
 A comprehensive job application tracking tool to help you manage your internship and full-time job application process.
 
