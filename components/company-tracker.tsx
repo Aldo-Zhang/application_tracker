@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react"
 import { format } from "date-fns"
 import { Plus, Search, Building, CalendarIcon, Briefcase } from "lucide-react"
-import { useVirtualizer } from '@tanstack/react-virtual'
+import { cn } from "@/lib/utils"
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -28,7 +28,9 @@ type CompanyApplication = {
   companyName: string
   position: string
   dateApplied: Date
-  status: "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted"
+  status: "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" | 
+          "Online Assessment" | "Phone Screen" | "Interview" | "Final Round" | 
+          "Offer" | "Withdrawn"
   notes?: string
 }
 
@@ -115,7 +117,9 @@ export function CompanyTracker() {
       companyName: newApplication.companyName,
       position: newApplication.position,
       dateApplied: newApplication.dateApplied || new Date(),
-      status: newApplication.status as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted",
+      status: newApplication.status as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" | 
+              "Online Assessment" | "Phone Screen" | "Interview" | "Final Round" | 
+              "Offer" | "Withdrawn",
       notes: newApplication.notes
     }
 
@@ -159,19 +163,43 @@ export function CompanyTracker() {
   const interviewCount = applications.filter(app => app.status === "Interviewing").length
   const offerCount = applications.filter(app => app.status === "Offer Received" || app.status === "Accepted").length
 
-  // Filter companies based on search term
-  const filteredCompanies = Object.entries(groupedByCompany)
-    .filter(([company]) => company.toLowerCase().includes(searchTerm.toLowerCase()))
-    .map(([company, apps]) => ({ company, apps }))
+  // Filter companies based on search term (旧版本的过滤逻辑)
+  const oldFilteredCompanies = searchTerm
+    ? Object.entries(groupedByCompany)
+        .filter(([company]) => company.toLowerCase().includes(searchTerm.toLowerCase()))
+        .map(([company, apps]) => ({ company, apps }))
+    : Object.entries(groupedByCompany)
+        .map(([company, apps]) => ({ company, apps }))
 
-  // Add virtual list logic
-  const parentRef = useRef<HTMLDivElement>(null)
-  const rowVirtualizer = useVirtualizer({
-    count: filteredCompanies.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 200, // Estimate company group height
-    overscan: 5 // Pre-render extra items
-  })
+  // 分组应用的逻辑保持不变
+  const groupedApplications = applications.reduce((groups, app) => {
+    const key = app.companyName;
+    if (!groups[key]) {
+      groups[key] = [];
+    }
+    groups[key].push(app);
+    return groups;
+  }, {} as Record<string, CompanyApplication[]>);
+
+  // 将分组转换为数组形式，用于渲染
+  const groupedCompanies = Object.entries(groupedApplications).map(([companyName, apps]) => ({
+    companyName,
+    applications: apps
+  }));
+
+  // 过滤搜索结果
+  const filteredCompanies = searchTerm
+    ? groupedCompanies
+        .map(company => ({
+          companyName: company.companyName,
+          applications: company.applications.filter(
+            app => 
+              app.companyName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              app.position.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        }))
+        .filter(company => company.applications.length > 0)
+    : groupedCompanies;
 
   return (
     <Card>
@@ -214,102 +242,100 @@ export function CompanyTracker() {
         </div>
 
         {filteredCompanies.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-6 text-center">
-            <Building className="mx-auto h-8 w-8 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center py-8 text-center">
+            <Building className="h-12 w-12 text-muted-foreground/50" />
+            <h3 className="mt-4 text-lg font-semibold">No applications found</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              No applications added yet. Click &quot;Add Application&quot; to start tracking.
+              {searchTerm ? "Try a different search term or " : "Start by "}
+              <Button variant="link" className="h-auto p-0" onClick={() => setIsAddDialogOpen(true)}>
+                adding your first application
+              </Button>
             </p>
           </div>
         ) : (
-          <div 
-            ref={parentRef} 
-            className="max-h-[600px] overflow-auto"
-            style={{
-              WebkitOverflowScrolling: 'touch' // iOS smooth scrolling
-            }}
-          >
-            <div
-              style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
-                width: '100%',
-                position: 'relative'
-              }}
-            >
-              {rowVirtualizer.getVirtualItems().map(virtualRow => (
-                <div
-                  key={virtualRow.index}
-                  style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${virtualRow.size}px`,
-                    transform: `translateY(${virtualRow.start}px)`
-                  }}
-                >
-                  <div className="space-y-4 mb-6">
-                    <h3 className="text-lg font-semibold flex items-center">
-                      <Building className="mr-2 h-4 w-4" />
-                      {filteredCompanies[virtualRow.index].company}
-                    </h3>
-                    {filteredCompanies[virtualRow.index].apps.map((app) => (
-                      <div key={app.id} className="flex flex-col space-y-2 rounded-md border p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <Briefcase className="mr-2 h-4 w-4 text-muted-foreground" />
-                            <span className="font-medium">{app.position}</span>
-                          </div>
-                          <Badge className={getStatusColor(app.status)}>
-                            {app.status}
-                          </Badge>
+          <div className="space-y-8 max-h-[600px] overflow-auto pr-1">
+            {filteredCompanies.map((company) => (
+              <div key={company.companyName} className="space-y-4">
+                <h3 className="text-lg font-semibold flex items-center sticky top-0 bg-card z-10 py-2">
+                  <Building className="mr-2 h-4 w-4" />
+                  {company.companyName}
+                </h3>
+                <div className="space-y-4 pl-1">
+                  {company.applications.map((app) => (
+                    <div 
+                      key={app.id} 
+                      className="border rounded-md p-4 shadow-sm space-y-3 relative"
+                      style={{zIndex: 1}}
+                    >
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div className="flex items-center">
+                          <Briefcase className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <h4 className="font-medium">{app.position}</h4>
                         </div>
-                        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                          <div className="flex items-center">
-                            <CalendarIcon className="mr-1 h-3 w-3" />
-                            Applied on {format(app.dateApplied, "yyyy-MM-dd")}
-                          </div>
-                          {app.notes && (
-                            <div className="flex-1 truncate">
-                              Notes: {app.notes}
-                            </div>
+                        <Badge 
+                          className={cn(
+                            app.status === "Applied" && "bg-blue-500",
+                            app.status === "Online Assessment" && "bg-purple-500",
+                            app.status === "Phone Screen" && "bg-yellow-500",
+                            app.status === "Interview" && "bg-amber-500",
+                            app.status === "Final Round" && "bg-orange-500",
+                            app.status === "Offer" && "bg-green-500",
+                            app.status === "Rejected" && "bg-red-500",
+                            app.status === "Withdrawn" && "bg-gray-500",
                           )}
-                        </div>
-                        <div className="flex items-center justify-end gap-2 pt-1">
-                          <Select
-                            value={app.status}
-                            onValueChange={(value) => 
-                              updateApplicationStatus(
-                                app.id, 
-                                value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted"
-                              )
-                            }
-                          >
-                            <SelectTrigger className="h-8 w-[140px]">
-                              <SelectValue placeholder="Update status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Applied">Applied</SelectItem>
-                              <SelectItem value="Interviewing">Interviewing</SelectItem>
-                              <SelectItem value="Rejected">Rejected</SelectItem>
-                              <SelectItem value="Offer Received">Offer Received</SelectItem>
-                              <SelectItem value="Accepted">Accepted</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <Button 
-                            variant="outline" 
-                            size="sm"
-                            className="h-8 text-destructive"
-                            onClick={() => deleteApplication(app.id)}
-                          >
-                            Delete
-                          </Button>
-                        </div>
+                        >
+                          {app.status}
+                        </Badge>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <CalendarIcon className="mr-1 h-3 w-3" />
+                        Applied on {format(app.dateApplied, "MMM d, yyyy")}
+                      </div>
+                      {app.notes && (
+                        <div className="text-sm border-t pt-2 mt-2">
+                          {app.notes}
+                        </div>
+                      )}
+                      <div className="flex justify-end gap-2 mt-2">
+                        <Select
+                          value={app.status}
+                          onValueChange={(value) => {
+                            const updatedApplications = applications.map((a) =>
+                              a.id === app.id ? { ...a, status: value as CompanyApplication["status"] } : a
+                            );
+                            setApplications(updatedApplications);
+                          }}
+                        >
+                          <SelectTrigger className="w-[160px] h-8">
+                            <SelectValue placeholder="Update status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Applied">Applied</SelectItem>
+                            <SelectItem value="Online Assessment">Online Assessment</SelectItem>
+                            <SelectItem value="Phone Screen">Phone Screen</SelectItem>
+                            <SelectItem value="Interview">Interview</SelectItem>
+                            <SelectItem value="Final Round">Final Round</SelectItem>
+                            <SelectItem value="Offer">Offer</SelectItem>
+                            <SelectItem value="Rejected">Rejected</SelectItem>
+                            <SelectItem value="Withdrawn">Withdrawn</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            const updatedApplications = applications.filter((a) => a.id !== app.id);
+                            setApplications(updatedApplications);
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>
@@ -388,7 +414,9 @@ export function CompanyTracker() {
                 onValueChange={(value) => 
                   setNewApplication({ 
                     ...newApplication, 
-                    status: value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" 
+                    status: value as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" | 
+                            "Online Assessment" | "Phone Screen" | "Interview" | "Final Round" | 
+                            "Offer" | "Withdrawn" 
                   })
                 }
               >
