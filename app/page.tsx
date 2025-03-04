@@ -2,6 +2,7 @@
 
 import { CalendarTracker } from "@/components/calendar-tracker"
 import { LeetcodeTracker } from "@/components/leetcode-tracker"
+import { CompanyTracker } from "@/components/company-tracker"
 import { ModeToggle } from "@/components/mode-toggle"
 
 export default function Home() {
@@ -22,9 +23,13 @@ export default function Home() {
             <h2 className="text-3xl font-bold tracking-tight">Application Tracker</h2>
             <p className="text-muted-foreground">Track your internship and full-time job applications in one place.</p>
           </div>
-          <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-[1fr_300px]">
-            <CalendarTracker />
-            <LeetcodeTracker />
+          <div className="grid gap-6">
+            <CompanyTracker />
+            
+            <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-[1fr_300px]">
+              <CalendarTracker />
+              <LeetcodeTracker />
+            </div>
           </div>
         </section>
       </main>

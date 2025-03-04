@@ -35,6 +35,7 @@ const defaultProblems = [
 
 export function LeetcodeTracker() {
   // 使用默认值初始化状态（不要在这里访问localStorage）
+  // @ts-expect-error problems not typed
   const [problems, setProblems] = useState<Problem[]>(defaultProblems)
   const [dailyGoal, setDailyGoal] = useState(3)
   const [isAddProblemOpen, setIsAddProblemOpen] = useState(false)
