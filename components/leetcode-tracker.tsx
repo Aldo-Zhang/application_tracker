@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { CheckCircle2, Circle, Trophy } from "lucide-react"
 
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -27,18 +27,16 @@ type Problem = {
   url?: string
 }
 
+// 默认数据，确保服务器和客户端初始渲染一致
+const defaultProblems = [
+  { id: "1", name: "Two Sum", difficulty: "Easy", completed: true, url: "https://leetcode.com/problems/two-sum/" },
+  { id: "2", name: "Add Two Numbers", difficulty: "Medium", completed: false, url: "https://leetcode.com/problems/add-two-numbers/" }
+]
+
 export function LeetcodeTracker() {
+  // 使用默认值初始化状态（不要在这里访问localStorage）
+  const [problems, setProblems] = useState<Problem[]>(defaultProblems)
   const [dailyGoal, setDailyGoal] = useState(3)
-  const [problems, setProblems] = useState<Problem[]>([
-    { id: "1", name: "Two Sum", difficulty: "Easy", completed: true, url: "https://leetcode.com/problems/two-sum/" },
-    {
-      id: "2",
-      name: "Add Two Numbers",
-      difficulty: "Medium",
-      completed: false,
-      url: "https://leetcode.com/problems/add-two-numbers/",
-    },
-  ])
   const [isAddProblemOpen, setIsAddProblemOpen] = useState(false)
   const [newProblem, setNewProblem] = useState<Partial<Problem>>({
     name: "",
@@ -47,9 +45,38 @@ export function LeetcodeTracker() {
     url: "",
   })
 
+  // 在客户端加载后才从localStorage读取数据
+  useEffect(() => {
+    // 从localStorage加载数据
+    const savedProblems = localStorage.getItem('leetcode-problems')
+    if (savedProblems) {
+      setProblems(JSON.parse(savedProblems))
+    }
+    
+    const savedGoal = localStorage.getItem('leetcode-daily-goal')
+    if (savedGoal) {
+      setDailyGoal(parseInt(savedGoal, 10))
+    }
+  }, [])
+
   const completedCount = problems.filter((p) => p.completed).length
   const progress = Math.min(100, (completedCount / dailyGoal) * 100)
   const goalReached = completedCount >= dailyGoal
+
+  // 当problems改变时保存到localStorage
+  useEffect(() => {
+    // 确保只有在客户端执行，且不是初始渲染
+    if (typeof window !== 'undefined' && problems !== defaultProblems) {
+      localStorage.setItem('leetcode-problems', JSON.stringify(problems))
+    }
+  }, [problems])
+
+  // 当dailyGoal改变时保存到localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && dailyGoal !== 3) {
+      localStorage.setItem('leetcode-daily-goal', dailyGoal.toString())
+    }
+  }, [dailyGoal])
 
   const handleAddProblem = () => {
     if (!newProblem.name) return
@@ -84,7 +111,6 @@ export function LeetcodeTracker() {
     }
   }
 
-  // Add a delete function for LeetCode problems
   const deleteProblem = (id: string) => {
     setProblems(problems.filter((problem) => problem.id !== id))
   }

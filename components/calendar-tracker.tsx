@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { format, startOfMonth, endOfMonth, eachDayOfInterval } from "date-fns"
 import { CalendarIcon, ChevronLeft, ChevronRight, Edit, Trash2 } from "lucide-react"
 import { DayPicker } from "react-day-picker"
@@ -48,23 +48,26 @@ const processSteps = [
   "Rejected",
 ]
 
+// 默认事件数据
+const defaultEvents = [
+  {
+    id: "1",
+    date: new Date(),
+    company: "Tech Corp",
+    position: "Software Engineer Intern",
+    step: "Online Assessment",
+    actionItems: [
+      { id: "task1", text: "Complete coding challenge", completed: false, deadline: undefined },
+      { id: "task2", text: "Review algorithms", completed: true, deadline: undefined },
+    ],
+    link: "https://example.com/assessment",
+    notes: "Assessment focuses on algorithms and data structures",
+  },
+]
+
 export function CalendarTracker() {
   const [selectedDay, setSelectedDay] = useState<Date | undefined>(new Date())
-  const [events, setEvents] = useState<JobEvent[]>([
-    {
-      id: "1",
-      date: new Date(),
-      company: "Tech Corp",
-      position: "Software Engineer Intern",
-      step: "Online Assessment",
-      actionItems: [
-        { id: "task1", text: "Complete coding challenge", completed: false, deadline: undefined },
-        { id: "task2", text: "Review algorithms", completed: true, deadline: undefined },
-      ],
-      link: "https://example.com/assessment",
-      notes: "Assessment focuses on algorithms and data structures",
-    },
-  ])
+  const [events, setEvents] = useState<JobEvent[]>(defaultEvents)
   const [isAddEventOpen, setIsAddEventOpen] = useState(false)
   const [isEditEventOpen, setIsEditEventOpen] = useState(false)
   const [currentEvent, setCurrentEvent] = useState<JobEvent | null>(null)
@@ -80,6 +83,48 @@ export function CalendarTracker() {
   const [newActionItem, setNewActionItem] = useState("")
   const [isFullCalendarOpen, setIsFullCalendarOpen] = useState(false)
   const [calendarMonth, setCalendarMonth] = useState(new Date())
+
+  // 客户端加载后获取本地存储的数据
+  useEffect(() => {
+    const savedEvents = localStorage.getItem('calendar-events')
+    if (savedEvents) {
+      try {
+        const parsedEvents = JSON.parse(savedEvents)
+        // 处理日期对象
+        const processedEvents = parsedEvents.map((event: any) => ({
+          ...event,
+          date: new Date(event.date),
+          actionItems: event.actionItems.map((item: any) => ({
+            ...item,
+            deadline: item.deadline ? new Date(item.deadline) : undefined
+          }))
+        }))
+        setEvents(processedEvents)
+      } catch (e) {
+        console.error('Error parsing saved events:', e)
+      }
+    }
+  }, [])
+  
+  // 保存到localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined' && events !== defaultEvents) {
+      try {
+        // 处理Date对象序列化
+        const eventsToSave = events.map(event => ({
+          ...event,
+          date: event.date.toISOString(),
+          actionItems: event.actionItems.map(item => ({
+            ...item,
+            deadline: item.deadline ? item.deadline.toISOString() : undefined
+          }))
+        }))
+        localStorage.setItem('calendar-events', JSON.stringify(eventsToSave))
+      } catch (e) {
+        console.error('Error saving events:', e)
+      }
+    }
+  }, [events])
 
   const selectedDayEvents = events.filter(
     (event) => selectedDay && event.date.toDateString() === selectedDay.toDateString(),
