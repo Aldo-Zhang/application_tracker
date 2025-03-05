@@ -7,8 +7,61 @@ import { ModeToggle } from "@/components/mode-toggle"
 import { DataTransfer } from "@/components/data-transfer"
 import { ToastProvider } from "@/components/ui/use-toast"
 import { Github } from "lucide-react"
+import { useState } from "react"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { CompanyApplication } from "@/components/company-tracker"
 
 export default function Home() {
+  const [showCalendarConfirm, setShowCalendarConfirm] = useState(false)
+  const [tempApplication, setTempApplication] = useState<CompanyApplication | null>(null)
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false)
+  const [newApplication, setNewApplication] = useState<Partial<CompanyApplication>>({
+    companyName: "",
+    position: "",
+    dateApplied: new Date(),
+    status: "Applied",
+    notes: ""
+  })
+
+  // 添加应用程序到 localStorage
+  const addApplicationToStorage = (application: CompanyApplication) => {
+    const savedApplications = localStorage.getItem('company-applications')
+    const applications = savedApplications ? JSON.parse(savedApplications) : []
+    const applicationsToSave = [...applications, {
+      ...application,
+      dateApplied: application.dateApplied.toISOString()
+    }]
+    localStorage.setItem('company-applications', JSON.stringify(applicationsToSave))
+  }
+
+  const handleAddApplication = () => {
+    if (!newApplication.companyName || !newApplication.position) return
+
+    const application: CompanyApplication = {
+      id: Date.now().toString(),
+      companyName: newApplication.companyName,
+      position: newApplication.position,
+      dateApplied: newApplication.dateApplied || new Date(),
+      status: newApplication.status as CompanyApplication["status"],
+      notes: newApplication.notes
+    }
+
+    setTempApplication(application)
+    setShowCalendarConfirm(true)
+    setIsAddDialogOpen(false)
+  }
+
+  const resetNewApplication = () => {
+    setNewApplication({
+      companyName: "",
+      position: "",
+      dateApplied: new Date(),
+      status: "Applied",
+      notes: ""
+    })
+  }
+
   return (
     <ToastProvider>
       <div className="min-h-screen flex flex-col bg-background">
@@ -63,6 +116,66 @@ export default function Home() {
             </div>
           </div>
         </footer>
+        <Dialog open={showCalendarConfirm} onOpenChange={setShowCalendarConfirm}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add to Calendar Tracker?</DialogTitle>
+              <DialogDescription>
+                Would you like to add this application to the Calendar Tracker as well?
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  if (tempApplication) {
+                    addApplicationToStorage(tempApplication)
+                    setTempApplication(null)
+                  }
+                  setShowCalendarConfirm(false)
+                  resetNewApplication()
+                }}
+              >
+                Add Application Only
+              </Button>
+              <Button
+                onClick={() => {
+                  if (tempApplication) {
+                    // 添加到应用程序列表
+                    addApplicationToStorage(tempApplication)
+                    
+                    // 创建日历事件
+                    const calendarEvent = {
+                      id: Date.now().toString(),
+                      date: tempApplication.dateApplied,
+                      company: tempApplication.companyName,
+                      position: tempApplication.position,
+                      step: "Application Submitted", // 使用 processSteps 中的第一个状态
+                      actionItems: [],
+                      link: "",
+                      notes: tempApplication.notes || ""
+                    }
+                    
+                    // 添加到日历事件
+                    const existingEvents = localStorage.getItem('calendar-events')
+                    const events = existingEvents ? JSON.parse(existingEvents) : []
+                    const updatedEvents = [...events, calendarEvent]
+                    localStorage.setItem('calendar-events', JSON.stringify(updatedEvents))
+                    
+                    // 强制刷新日历事件
+                    window.dispatchEvent(new Event('storage'))
+                    
+                    setTempApplication(null)
+                  }
+                  setShowCalendarConfirm(false)
+                  resetNewApplication()
+                }}
+              >
+                Add to Calendar as Well
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </ToastProvider>
   )

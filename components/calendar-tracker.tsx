@@ -131,6 +131,32 @@ export function CalendarTracker() {
     }
   }, [events])
 
+  // 添加 storage 事件监听器来更新事件
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedEvents = localStorage.getItem('calendar-events')
+      if (savedEvents) {
+        try {
+          const parsedEvents = JSON.parse(savedEvents)
+          const processedEvents = parsedEvents.map((event: any) => ({
+            ...event,
+            date: new Date(event.date),
+            actionItems: event.actionItems.map((item: any) => ({
+              ...item,
+              deadline: item.deadline ? new Date(item.deadline) : undefined
+            }))
+          }))
+          setEvents(processedEvents)
+        } catch (e) {
+          console.error('Error parsing saved events:', e)
+        }
+      }
+    }
+
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
+  }, [])
+
   const selectedDayEvents = events.filter(
     (event) => selectedDay && event.date.toDateString() === selectedDay.toDateString(),
   )

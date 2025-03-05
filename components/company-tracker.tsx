@@ -23,7 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { DayPicker } from "react-day-picker"
 
-type CompanyApplication = {
+export type CompanyApplication = {
   id: string
   companyName: string
   position: string
@@ -75,6 +75,8 @@ export function CompanyTracker() {
     status: "Applied",
     notes: ""
   })
+  const [showCalendarConfirm, setShowCalendarConfirm] = useState(false)
+  const [tempApplication, setTempApplication] = useState<CompanyApplication | null>(null)
 
   // Load data from localStorage on client-side only
   useEffect(() => {
@@ -117,20 +119,12 @@ export function CompanyTracker() {
       companyName: newApplication.companyName,
       position: newApplication.position,
       dateApplied: newApplication.dateApplied || new Date(),
-      status: newApplication.status as "Applied" | "Interviewing" | "Rejected" | "Offer Received" | "Accepted" | 
-              "Online Assessment" | "Phone Screen" | "Interview" | "Final Round" | 
-              "Offer" | "Withdrawn",
+      status: newApplication.status as CompanyApplication["status"],
       notes: newApplication.notes
     }
 
-    setApplications([...applications, application])
-    setNewApplication({
-      companyName: "",
-      position: "",
-      dateApplied: new Date(),
-      status: "Applied",
-      notes: ""
-    })
+    setTempApplication(application)
+    setShowCalendarConfirm(true)
     setIsAddDialogOpen(false)
   }
 
@@ -200,6 +194,16 @@ export function CompanyTracker() {
         }))
         .filter(company => company.applications.length > 0)
     : groupedCompanies;
+
+  const resetNewApplication = () => {
+    setNewApplication({
+      companyName: "",
+      position: "",
+      dateApplied: new Date(),
+      status: "Applied",
+      notes: ""
+    })
+  }
 
   return (
     <Card>
@@ -446,6 +450,73 @@ export function CompanyTracker() {
           </div>
           <DialogFooter>
             <Button onClick={handleAddApplication}>Add</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showCalendarConfirm} onOpenChange={setShowCalendarConfirm}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add to Calendar Tracker?</DialogTitle>
+            <DialogDescription>
+              Would you like to add this application to the Calendar Tracker as well?
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (tempApplication) {
+                  // Add to applications list
+                  const applicationsToSave = [...applications, tempApplication]
+                  setApplications(applicationsToSave)
+                  localStorage.setItem('company-applications', JSON.stringify(applicationsToSave.map(app => ({
+                    ...app,
+                    dateApplied: app.dateApplied.toISOString()
+                  }))))
+                  setTempApplication(null)
+                }
+                setShowCalendarConfirm(false)
+                resetNewApplication()
+              }}
+            >
+              Add Application Only
+            </Button>
+            <Button
+              onClick={() => {
+                if (tempApplication) {
+                  // Add to applications list
+                  const applicationsToSave = [...applications, tempApplication]
+                  setApplications(applicationsToSave)
+                  localStorage.setItem('company-applications', JSON.stringify(applicationsToSave.map(app => ({
+                    ...app,
+                    dateApplied: app.dateApplied.toISOString()
+                  }))))
+                  
+                  // Create calendar event
+                  const calendarEvent = {
+                    id: Date.now().toString(),
+                    date: tempApplication.dateApplied,
+                    company: tempApplication.companyName,
+                    position: tempApplication.position,
+                    step: tempApplication.status,
+                    actionItems: [],
+                    notes: tempApplication.notes
+                  }
+                  
+                  // Add to calendar events
+                  const existingEvents = localStorage.getItem('calendar-events')
+                  const events = existingEvents ? JSON.parse(existingEvents) : []
+                  const updatedEvents = [...events, calendarEvent]
+                  localStorage.setItem('calendar-events', JSON.stringify(updatedEvents))
+                  
+                  setTempApplication(null)
+                }
+                setShowCalendarConfirm(false)
+                resetNewApplication()
+              }}
+            >
+              Add to Calendar as Well
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
